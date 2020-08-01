@@ -36,13 +36,12 @@ __IS_PATCHED__ = 0
 class Chrome:
 
     def __new__(cls, *args, **kwargs):
-
+        if not kwargs.get('executable_path'):
+            kwargs['executable_path'] = './{}'.format(ChromeDriverManager(*args, **kwargs).executable_path)
         if not ChromeDriverManager.installed:
             ChromeDriverManager(*args, **kwargs).install()
         if not ChromeDriverManager.selenium_patched:
             ChromeDriverManager(*args, **kwargs).patch_selenium_webdriver()
-        if not kwargs.get('executable_path'):
-            kwargs['executable_path'] = './{}'.format(ChromeDriverManager(*args, **kwargs).executable_path)
         if not kwargs.get('options'):
             kwargs['options'] = ChromeOptions() 
         instance = object.__new__(_Chrome)
@@ -198,10 +197,10 @@ class ChromeDriverManager(object):
         return self._exe_name
 
 
-    def patch_binary(self):
+    def patch_binary(self, check_only=False):
         """
         Patches the ChromeDriver binary
-
+        :param bool check_only: only check if file is patched or not, but do not alter
         :return: False on failure, binary name on success
         """
         if self.__class__.installed:
@@ -210,14 +209,16 @@ class ChromeDriverManager(object):
         with io.open(self.executable_path, "r+b") as binary:
             for line in iter(lambda: binary.readline(), b""):
                 if b"cdc_" in line:
-                    binary.seek(-len(line), 1)
-                    line = b"  var key = '$azc_abcdefghijklmnopQRstuv_';\n"
-                    binary.write(line)
-                    __IS_PATCHED__ = 1
-                    break
-            else:
-                return False
-            return True
+                    if not check_only:
+                         binary.seek(-len(line), 1)
+                         line = b"  var key = '$azc_abcdefghijklmnopQRstuv_';\n"
+                         binary.write(line)
+                         __IS_PATCHED__ = 1
+                         return True # we don't need to look any further from this point
+                    else:
+                        return False # file not patched
+            return True # file does not contain the sequence, so it is patched (or the wrong file is used)
+            
 
 
 def install(executable_path=None, target_version=None, *args, **kwargs):
