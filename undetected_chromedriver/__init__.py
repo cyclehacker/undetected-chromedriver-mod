@@ -25,7 +25,7 @@ from distutils.version import LooseVersion
 from urllib.request import urlopen, urlretrieve
 
 from selenium.webdriver import Chrome as _Chrome
-from selenium.webdriver import ChromeOptions as _ChromeOptions
+from selenium.webdriver.chrome.options import Options as _ChromeOptions
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class Chrome:
         if not kwargs.get('executable_path'):
             kwargs['executable_path'] = './{}'.format(ChromeDriverManager(*args, **kwargs).executable_path)
         if not kwargs.get('options'):
-            kwargs['options'] = ChromeOptions() 
+            kwargs['options'] = Options()
         instance = object.__new__(_Chrome)
         instance.__init__(*args, **kwargs)
         instance.execute_cdp_cmd(
@@ -80,7 +80,7 @@ class Chrome:
         return instance
 
 
-class ChromeOptions:
+class Options:
     def __new__(cls, *args, **kwargs):
         if not ChromeDriverManager.installed:
             ChromeDriverManager(*args, **kwargs).install()
@@ -103,7 +103,6 @@ class ChromeDriverManager(object):
     target_version = None
 
     DL_BASE = "https://chromedriver.storage.googleapis.com/"
-
 
     def __init__(self, executable_path=None, target_version=None, *args, **kwargs):
 
@@ -141,12 +140,11 @@ class ChromeDriverManager(object):
         import selenium.webdriver.chrome.service
         import selenium.webdriver
         selenium.webdriver.Chrome = Chrome
-        selenium.webdriver.ChromeOptions = ChromeOptions
+        selenium.webdriver.chrome.Options = Options
         logger.warning(
             "Selenium patched. Safe to import Chrome / ChromeOptions"
         )
         self_.__class__.selenium_patched = True
-
 
     def install(self, patch_selenium=True):
         """
@@ -168,7 +166,6 @@ class ChromeDriverManager(object):
         if patch_selenium:
             self.patch_selenium_webdriver()
 
- 
     def get_release_version_number(self):
         """
         Gets the latest major version available, or the latest major version of self.target_version if set explicitly.
@@ -181,7 +178,6 @@ class ChromeDriverManager(object):
             else f"LATEST_RELEASE_{self.target_version}"
         )
         return LooseVersion(urlopen(self.__class__.DL_BASE + path).read().decode())
-
 
     def fetch_chromedriver(self):
         """
@@ -204,7 +200,6 @@ class ChromeDriverManager(object):
         if sys.platform != 'win32':
             os.chmod(self._exe_name, 0o755)
         return self._exe_name
-
 
     def patch_binary(self):
         """
