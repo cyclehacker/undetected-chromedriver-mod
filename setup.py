@@ -18,13 +18,13 @@ from setuptools import setup
 
 
 setup(
-    name='undetected-chromedriver',
+    name='undetected-chromedriver-mod',
     version='1.3.5',
-    packages=['undetected_chromedriver'],
+    packages=['undetected_chromedriver_mod'],
     install_requires=[
         'selenium',
     ],
-    url='https://github.com/ultrafunkamsterdam/undetected_chromedriver',
+    url='https://github.com/cyclehacker/undetected_chromedriver_mod',
     license='MIT',
     author='UltrafunkAmsterdam',
     author_email='',
