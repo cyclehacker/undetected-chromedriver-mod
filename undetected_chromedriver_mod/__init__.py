@@ -25,7 +25,7 @@ from distutils.version import LooseVersion
 from urllib.request import urlopen, urlretrieve
 
 from selenium.webdriver import Chrome as _Chrome
-from selenium.webdriver.chrome.options import Options as _ChromeOptions
+from selenium.webdriver import ChromeOptions as _ChromeOptions
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class Chrome:
         if not kwargs.get('executable_path'):
             kwargs['executable_path'] = './{}'.format(ChromeDriverManager(*args, **kwargs).executable_path)
         if not kwargs.get('options'):
-            kwargs['options'] = Options()
+            kwargs['options'] = ChromeOptions()
         instance = object.__new__(_Chrome)
         instance.__init__(*args, **kwargs)
         instance.execute_cdp_cmd(
@@ -80,7 +80,7 @@ class Chrome:
         return instance
 
 
-class Options:
+class ChromeOptions:
     def __new__(cls, *args, **kwargs):
         if not ChromeDriverManager.installed:
             ChromeDriverManager(*args, **kwargs).install()
@@ -140,7 +140,7 @@ class ChromeDriverManager(object):
         import selenium.webdriver.chrome.service
         import selenium.webdriver
         selenium.webdriver.Chrome = Chrome
-        selenium.webdriver.chrome.Options = Options
+        selenium.webdriver.ChromeOptions = ChromeOptions
         logger.warning(
             "Selenium patched. Safe to import Chrome / ChromeOptions"
         )
